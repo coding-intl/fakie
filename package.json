@@ -1,0 +1,32 @@
+{
+  "name": "fakie",
+  "version": "0.0.1",
+  "description": "fake API's made easy",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coding-intl/fakie.git"
+  },
+  "keywords": [
+    "js",
+    "javascript",
+    "fake",
+    "faker",
+    "api",
+    "mock",
+    "mockup",
+    "mock-up"
+  ],
+  "author": "Dustin Hagemeier <dustin@coding.international>",
+  "license": "AGPLv3",
+  "bugs": {
+    "url": "https://github.com/coding-intl/fakie/issues"
+  },
+  "homepage": "https://github.com/coding-intl/fakie#readme",
+  "dependencies": {
+    "faker": "^4.1.0"
+  }
+}

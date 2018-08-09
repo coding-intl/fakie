@@ -24,8 +24,8 @@ const getAllUsers = fakie({
       bday: 'past',
       loves: 'abbreviation'
     },
-    3,
-    5,
+    3, // min entries, defaults to 5
+    5, // max entries, defaults to 10
   ),
   id: 'uuid'
 });
@@ -35,16 +35,6 @@ const getUser = fakie({
   username: (request) => request.params.username,
   avatar: 'avatar',
   friends: fakie.array('userName')
-});
-
-const client = new FakieClient({
-  host: 'http://localhost',
-  routes: [
-    {
-      path: '/users',
-      handler: getUsers,
-    }
-  ]
 });
 ```
 

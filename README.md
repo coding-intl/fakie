@@ -1,15 +1,16 @@
 # fakie
 
 **MOCK API MADE EASY**
+Simple server or fetch mock up API powered by [faker.js](https://github.com/Marak/faker.js) and [express](https://github.com/expressjs/express).
 
 ```
 npm i -S fakie
 ```
 
-Need a mock API with random content? [templates](#templates)
-Wanna use it as a standalone server? [FakieServer](#FakieServer)
-Wanna use it as a router in express? [createRouter](#createRouter)
-Wanna use it as a fetch mock up directly in the client? [FakieClient](#FakieClient)
+- Need a mock API with random content? [templates](#templates)
+- Wanna use it as a standalone server? [FakieServer](#FakieServer)
+- Wanna use it as a router in express? [createRouter](#createRouter)
+- Wanna use it as a fetch mock up directly in the client? [FakieClient](#FakieClient)
 
 
 ## Templates

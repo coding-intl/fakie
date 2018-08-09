@@ -83,7 +83,7 @@ module.exports = class FakieClient {
 
         console.log(match, params);
 
-        const request = { method, path, pathName, query, hash, params, ...(options || {}) };
+        const request = { method, path, pathName, query, hash, params, body: options && options.body};
 
         if (typeof route.handler === 'function') {
           return route.handler(request);

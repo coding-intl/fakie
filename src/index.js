@@ -1,8 +1,12 @@
+const faker = require('./faker');
 const FakieClient = require('./FakieClient');
-const {fakiefy, flatFaker} = require('./fakiefy');
+const FakieServer = require('./FakieServer');
+const {fakie, flatFaker} = require('./fakiefy');
 
 module.exports = {
   FakieClient,
-  fakiefy,
+  FakieServer,
+  faker,
+  fakie,
   flatFaker,
 };

@@ -1,9 +1,14 @@
+const faker = require('./faker');
 
 module.exports = class FakieClient {
   constructor(config) {
-    this.config = config;
     this.host = config.host;
     this.routes = config.routes;
+    this.seed = config.seed;
+    this.locale = config.locale;
+    if (this.locale) {
+      faker.locale = this.locale;
+    }
   }
 
   static prettyQuery(query) {
@@ -20,58 +25,73 @@ module.exports = class FakieClient {
       }, {})
   };
 
-  static useRoute(route, request) {
+  static createFake(config, request) {
     const handleValue = (value) => {
       switch (typeof value) {
         case 'object':
           return deepCallEverything(value);
         case 'function':
-          return value();
+          return value(request);
         default:
           return value;
       }
     };
     const deepCallEverything = (object) => {
-      const result = object.constructor === Array.constructor ? [] : {};
-      for (let key in object) {
-        result[key] = handleValue(object[key]);
+      if (Array.isArray(object)) {
+        return object.map(handleValue);
       }
-      return result;
+      else {
+        const result = {};
+        let keys = Object.keys(object);
+        for (let key of keys) {
+          result[key] = handleValue(object[key]);
+        }
+        return result;
+      }
     };
 
-    if (typeof route.handler === 'object') {
-      return deepCallEverything(route.handler);
-    }
+    return handleValue(config);
   }
 
   fetch(url, options) {
-    const method = options && options.method ? options.method.toLowerCase() : 'GET';
-    const path = url.startsWith(this.host) ? url.substr(this.host.length) : url;
+    if (!url) return undefined;
+    const method = options && options.method || 'GET';
+    const path = url.indexOf(this.host) === 0 ? url.substr(this.host.length) : url;
     const pathName = path.replace(/[?#].*$/, '');
-    const query = FakieClient.prettyQuery(path.replace(/^.*?\?([^#]*).*$/, '$1'));
+    const query = FakieClient.prettyQuery(path.replace(/^.*?\?([^#]*).*$/, '$1')) || {};
     const hash = path.replace(/^.*#(.*)$/, '$1');
+
+    if (this.seed) {
+      faker.seed(this.seed);
+    }
+
 
     for (let route of this.routes) {
       if (!route || !route.path || (route.methods && route.methods.indexOf(method) < 0)) return false;
-      const regex = new RegExp('^'+route.path.replace(/:\w/, '([^/?#]*)')+'$');
+
+      const regex = new RegExp('^' + route.path.replace(/:\w+/, '([^/?#]*)') + '$');
       const match = path.match(regex);
+      console.log(regex, match);
+
       if (match) {
-        let params = route.path.match(/:\w/g);
-        if (params) {
-          params = params.reduce((acc, key, index) => {
-            acc[key] = match[index+1];
+        let params = (route.path.match(/:\w+/g) || [])
+          .reduce((acc, key, index) => {
+            key = key.substr(1);
+            acc[key] = match[index + 1];
             return acc;
           }, {});
-        }
 
-        const request = {method, path, pathName, query, hash, params};
-        if(typeof route.handler === 'function') {
+        console.log(match, params);
+
+        const request = { method, path, pathName, query, hash, params, ...(options || {}) };
+
+        if (typeof route.handler === 'function') {
           return route.handler(request);
         }
         else {
-          return FakieClient.useRoute(route, request);
+          return FakieClient.createFake(route.handler, request);
         }
       }
     }
   }
-}
+};

@@ -1,24 +1,55 @@
-const { fakiefy, FakieClient } = require('../src/index');
+const { fakie, FakieClient, FakieServer } = require('../src/index');
 
-const getUsers = fakiefy({
-  users: [
+const getAllUsers = fakie({
+  users: fakie.array(
     {
       name: 'userName',
       bday: 'past',
-      catchPhrase: 'catchPhrase'
-    }
-  ],
-  id: 'recent'
-}, 'de');
+      loves: 'abbreviation'
+    },
+    3,
+    5,
+  ),
+  id: 'uuid'
+});
+
+const getUser = fakie({
+  username: (request) => request.params.username,
+  avatar: 'avatar',
+  friends: fakie.array('userName')
+});
 
 const client = new FakieClient({
   host: 'http://localhost',
   routes: [
     {
       path: '/users',
-      handler: getUsers,
+      handler: getAllUsers,
     }
   ]
 });
 
-console.log(client.fetch('http://localhost/users'));
+console.log(
+  client.fetch('http://localhost/users', {method: 'GET'})
+);
+
+const server = new FakieServer({
+  // locale: localizes some of the values e.g. the names
+  locale: 'de',
+  // seed: number other than 0 - enforces to receive always the same results  !!! doesn't work with dates !!!
+  seed: 11092323,
+  routes: [
+    {
+      methods: ['GET'],
+      path: '/users',
+      handler: getAllUsers,
+    },
+    {
+      methods: ['GET'],
+      path: '/user/:username',
+      handler: getUser,
+    }
+  ]
+});
+
+server.listen(/*PORT*/);

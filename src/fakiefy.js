@@ -1,4 +1,5 @@
-const faker = require('faker');
+const faker = require('./faker');
+const FakieClient = require('./FakieClient');
 
 const flatten = (acc, obj) => {
   Object.keys(obj).forEach(key => {
@@ -13,30 +14,49 @@ const flatten = (acc, obj) => {
 };
 const flatFaker = flatten({}, faker);
 
-const fakiefy = (handler, locale = 'en') => {
-  faker.locale = locale;
-
-  const deepCallEverything = (object) => {
-    const result = Array.isArray(object) ? [] : {};
-    for (let key in object) {
-      if (typeof object[key] === 'string' && flatFaker[object[key]]) {
-        result[key] = flatFaker[object[key]];
-        console.log(key);
-      }
-      else {
-        result[key] = object[key];
-      }
+const fakie = (config) => {
+  const handleValue = (value) => {
+    if (typeof value === 'string' && flatFaker[value]) {
+      return (request) => flatFaker[value]();
     }
-    return result;
+    else if (typeof value === 'object') {
+      return deepCallEverything(value);
+    }
+    else {
+      return value
+    }
   };
 
-  if (typeof handler === 'object') {
-    return deepCallEverything(handler);
+  const deepCallEverything = (object) => {
+    if (Array.isArray(object)) {
+      return object.map(handleValue);
+    }
+    else {
+      const result = {};
+      let keys = Object.keys(object);
+      for (let key of keys) {
+        result[key] = handleValue(object[key]);
+      }
+      return result;
+    }
+  };
+
+  return handleValue(config);
+};
+
+fakie.array = (config, min = 5, max = 10) => {
+  const fake = fakie(config);
+  return (request) => {
+    const size = faker.random.number({ min, max });
+    const array = [];
+    for (let i = 0; i < size; i++) {
+      array[i] = FakieClient.createFake(fake, request);
+    }
+    return array;
   }
-  return handler;
 };
 
 module.exports = {
   flatFaker,
-  fakiefy
+  fakie,
 };

@@ -29,9 +29,13 @@ const client = new FakieClient({
   ]
 });
 
-console.log(
-  client.fetch('http://localhost/users', {method: 'GET'})
-);
+// TODO: determine if FakieClient.fetch should work on node. Response and Blob would need Fallbacks.
+//
+// client.fetch('http://localhost/users', { method: 'GET' })
+//   .then(
+//     response =>
+//       console.log(response.json())
+//   );
 
 const server = new FakieServer({
   // locale: localizes some of the values e.g. the names

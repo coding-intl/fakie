@@ -54,6 +54,22 @@ module.exports = class FakieClient {
   }
 
   fetch(url, options) {
+    return new Promise((resolve, reject) => {
+      const result = this.fetch(url, options);
+      if (result === undefined) {
+        let blob = new Blob(['{"ok": false, "status": 404, "statusText": "Not Found!"}'], {type: "application/json"});
+        let init = { "status" : 404 , "statusText" : "Not Found!" };
+        return resolve(new Response(blob, init))
+      }
+      else {
+        let blob = new Blob([result], {type: "application/json"});
+        let init = { "status" : 200 , "statusText" : "OK" };
+        return resolve(new Response(blob, init))
+      }
+    });
+  }
+
+  fetchSync(url, options) {
     if (!url) return undefined;
     const method = options && options.method || 'GET';
     const path = url.indexOf(this.host) === 0 ? url.substr(this.host.length) : url;
@@ -67,11 +83,10 @@ module.exports = class FakieClient {
 
 
     for (let route of this.routes) {
-      if (!route || !route.path || (route.methods && route.methods.indexOf(method) < 0)) return false;
+      if (!route || !route.path || (route.methods && route.methods.indexOf(method) < 0)) continue;
 
       const regex = new RegExp('^' + route.path.replace(/:\w+/, '([^/?#]*)') + '$');
       const match = path.match(regex);
-      console.log(regex, match);
 
       if (match) {
         let params = (route.path.match(/:\w+/g) || [])
@@ -81,9 +96,7 @@ module.exports = class FakieClient {
             return acc;
           }, {});
 
-        console.log(match, params);
-
-        const request = { method, path, pathName, query, hash, params, body: options && options.body};
+        const request = { method, path, pathName, query, hash, params, body: options && options.body };
 
         if (typeof route.handler === 'function') {
           return route.handler(request);

@@ -95,7 +95,9 @@ const client = new FakieClient({
   ]
 });
 
-console.log(
-  client.fetch('http://localhost/users', {method: 'GET'})
-);
+client.fetch('http://localhost/users', { method: 'GET' })
+  .then(
+    response =>
+      console.log(response.json())
+  );
 ```

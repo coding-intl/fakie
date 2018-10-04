@@ -10,7 +10,7 @@ module.exports = class FakieServer {
   static createRouter(client) {
     const router = new express.Router();
     router.all('*', (request, response) => {
-      const result = client.fetch(request.url, {method: request.method, body: request.body}, true);
+      const result = client.fetchSync(request.url, {method: request.method, body: request.body}, true);
       if(result) {
         return response.json(result);
       }
